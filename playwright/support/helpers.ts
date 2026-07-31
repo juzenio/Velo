@@ -9,3 +9,6 @@ export function generateOrderCode() {
   
     return `VLO-${firstNumber}${letter}${lastNumbers}`
   }
+
+
+ 
