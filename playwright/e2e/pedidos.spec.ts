@@ -1,12 +1,16 @@
 import { expect, test } from '../support/fixtures'
-
 import { generateOrderCode } from '../support/helpers'
-
-import { OrderDetails } from '../support/actions/orderLookupActions'
+import { createOrder, deleteOrderByCode, closeDatabase } from '../support/database/orderSeeder'
+import orders from '../support/fixture/orders.json' with { type: 'json' }
 
 /// AAA - Arrange, Act, Assert
 
 test.describe('Consulta de Pedido', () => {
+
+  test.afterAll(async () => {
+    // fecha a conexão com o banco
+    await closeDatabase()
+  })
 
   test.beforeEach(async ({ app }) => {
     // Arrange
@@ -16,68 +20,49 @@ test.describe('Consulta de Pedido', () => {
   test('deve consultar um pedido aprovado', async ({ app }) => {
 
     // Test Data
-    const Order: OrderDetails = {
-      Number: 'VLO-5G1210',
-      Name: 'JUZENIO SANTOS',
-      Email: 'juzenio.santos01@gmail.com',
-      Status: 'APROVADO' as const,
-      Color: 'Glacier Blue',
-      Wheels: 'aero Wheels',
-    }
+    const order = orders.APROVADO
+    await deleteOrderByCode(order.order_number)
+    await createOrder(order)
 
     // Act  
-    await app.orderLookup.searchOrder(Order.Number)
+    await app.orderLookup.searchOrder(order.order_number)
 
     // Assert
-    await app.orderLookup.validateOrderDetails(Order)
-
-    // Validação do badge de status encapsulada na Action
-    await app.orderLookup.validateStatusBadge(Order.Status)
+    await app.orderLookup.validateOrderDetails(order)
+    await app.orderLookup.validateStatusBadge(order.status)
 
   })
 
   test('deve consultar um pedido reprovado', async ({ app }) => {
 
     // Test Data
-    const Order: OrderDetails = {
-      Number: 'VLO-KAPUFX',
-      Name: 'jack sperow',
-      Email: 'juzenio.santos01@gmail.com',
-      Status: 'REPROVADO' as const,
-      Color: 'Midnight Black',
-      Wheels: 'sport Wheels',
-    }
+    const order = orders.REPROVADO
+    await deleteOrderByCode(order.order_number)
+    await createOrder(order)
 
     // Act  
-    await app.orderLookup.searchOrder(Order.Number)
+    await app.orderLookup.searchOrder(order.order_number)
 
     // Assert
-    await app.orderLookup.validateOrderDetails(Order)
+    await app.orderLookup.validateOrderDetails(order)
+    await app.orderLookup.validateStatusBadge(order.status)
 
-    // Validação do badge de status encapsulada na Action
-    await app.orderLookup.validateStatusBadge(Order.Status)
   })
 
   test('deve consultar um pedido em analise', async ({ app }) => {
 
     // Test Data
-    const Order: OrderDetails = {
-      Number: 'VLO-IYVSUL',
-      Name: 'marcelio alencar',
-      Email: 'marcelio.santos01@gmail.com',
-      Status: 'EM_ANALISE' as const,
-      Color: 'Lunar White',
-      Wheels: 'aero Wheels',
-    }
+    const order = orders.EM_ANALISE
+    await deleteOrderByCode(order.order_number)
+    await createOrder(order)
 
     // Act  
-    await app.orderLookup.searchOrder(Order.Number)
+    await app.orderLookup.searchOrder(order.order_number)
 
     // Assert
-    await app.orderLookup.validateOrderDetails(Order)
+    await app.orderLookup.validateOrderDetails(order)
+    await app.orderLookup.validateStatusBadge(order.status)
 
-    // Validação do badge de status encapsulada na Action
-    await app.orderLookup.validateStatusBadge(Order.Status)
   })
 
   test('deve exibir mensagem quando o pedido não é encontrado', async ({ app }) => {
@@ -94,7 +79,6 @@ test.describe('Consulta de Pedido', () => {
   })
 
   test('deve exibir mensagem quando o pedido em qualquer fomato nao é encontrado', async ({ app }) => {
-
 
     // Act  
     await app.orderLookup.searchOrder('ACV489')
@@ -117,13 +101,13 @@ test.describe('Consulta de Pedido', () => {
 
   })
 
-  test('deve manter o campode busca desabilitado com o campo vazio ou apenas espaços', async ({ app,page }) => {
+  test('deve manter o campode busca desabilitado com o campo vazio ou apenas espaços', async ({ app, page }) => {
 
-    const button =  app.orderLookup.elements.searchButton
+    const button = app.orderLookup.elements.searchButton
     await expect(button).toBeDisabled()
 
     await app.orderLookup.elements.orderInput.fill('  ')
     await expect(button).toBeDisabled()
-    
+
   })
 })

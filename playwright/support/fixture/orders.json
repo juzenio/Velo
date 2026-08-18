@@ -1,0 +1,50 @@
+{
+  "APROVADO": {
+    "order_number": "VLO-TST001",
+    "color": "glacier-blue",
+    "wheel_type": "aero",
+    "customer_name": "JUZENIO SANTOS",
+    "customer_email": "juzenio.santos01@gmail.com",
+    "customer_phone": "(88) 99725-3360",
+    "customer_cpf": "543.908.920-96",
+    "payment_method": "avista",
+    "total_price": "52500",
+    "status": "APROVADO",
+    "optionals": [],
+    "display_color": "Glacier Blue",
+    "display_wheels": "aero Wheels"
+  },
+  "REPROVADO": {
+    "order_number": "VLO-TST002",
+    "color": "midnight-black",
+    "wheel_type": "sport",
+    "customer_name": "jack sperow",
+    "customer_email": "juzenio.santos01@gmail.com",
+    "customer_phone": "(88) 99725-3360",
+    "customer_cpf": "543.908.920-96",
+    "payment_method": "avista",
+    "total_price": "52500",
+    "status": "REPROVADO",
+    "optionals": [
+      "flux-capacitor",
+      "precision-park"
+    ],
+    "display_color": "Midnight Black",
+    "display_wheels": "sport Wheels"
+  },
+  "EM_ANALISE": {
+    "order_number": "VLO-TST003",
+    "color": "lunar-white",
+    "wheel_type": "aero",
+    "customer_name": "marcelio alencar",
+    "customer_email": "marcelio.santos01@gmail.com",
+    "customer_phone": "(88) 99725-3360",
+    "customer_cpf": "543.908.920-96",
+    "payment_method": "avista",
+    "total_price": "52500",
+    "status": "EM_ANALISE",
+    "optionals": [],
+    "display_color": "Lunar White",
+    "display_wheels": "aero Wheels"
+  }
+}
