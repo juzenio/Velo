@@ -56,6 +56,17 @@ export async function createOrder(order: OrderInput) {
 }
 
 /**
+ * Busca um pedido existente no banco pelo CPF do cliente.
+ */
+export async function getOrderByCpf(cpf: string) {
+  return await db
+    .selectFrom('orders')
+    .selectAll()
+    .where('customer_cpf', '=', cpf)
+    .executeTakeFirst()
+}
+
+/**
  * Deleta um pedido do banco pelo código (order_number).
  */
 export async function deleteOrderByCode(orderNumber: string) {

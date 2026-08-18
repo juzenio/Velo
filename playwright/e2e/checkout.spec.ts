@@ -1,5 +1,6 @@
 import { expect, test } from '../support/fixtures'
 import { CustomerFormData } from '../support/actions/checkoutActions'
+import { getOrderByCpf, deleteOrderByCode, closeDatabase } from '../support/database/orderSeeder'
 
 /// AAA - Arrange, Act, Assert
 
@@ -97,7 +98,12 @@ test.describe('Checkout', () => {
   })
 
   test.describe('Criação de Pedidos', () => {
-    test('CT05 - deve criar um pedido com pagamento à vista com sucesso', async ({ app }) => {
+
+    test.afterAll(async () => {
+      await closeDatabase()
+    })
+
+    test('deve criar um pedido com pagamento à vista com sucesso', async ({ app, page }) => {
       // Massa de Testes
       const customer: CustomerFormData = {
         name: 'Fernando',
@@ -109,15 +115,24 @@ test.describe('Checkout', () => {
         terms: true,
       }
 
-      // Arrange
-      await app.checkout.open()
+      // Arrange: Limpeza prévia buscando o order_number existente no banco pelo CPF
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
 
-      // Act
+      // Arrange: Fluxo de ponta a ponta iniciando na página principal
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preencher dados e submeter o pedido à vista
       await app.checkout.fillCustomerData(customer)
       await app.checkout.selectPaymentMethod('avista')
       await app.checkout.submitOrder()
 
-      // Assert
+      // Assert: Validar pedido aprovado e exibido na confirmação
       await app.checkout.validateOrderSuccess('Pedido Aprovado!', customer)
     })
   })
