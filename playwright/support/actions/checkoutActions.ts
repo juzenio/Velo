@@ -7,6 +7,7 @@ export type CustomerFormData = {
   phone: string
   cpf: string
   store: string
+  paymentMethod: 'avista' | 'financiamento'
   terms?: boolean
 }
 
@@ -38,6 +39,7 @@ export function createCheckoutActions(page: Page) {
     avistaButton: page.getByTestId('payment-avista'),
     financiamentoButton: page.getByTestId('payment-financiamento'),
     entryValueInput: page.getByTestId('input-entry-value'),
+    totalPrice: page.getByTestId('summary-total-price'),
   }
 
   //success
@@ -101,6 +103,11 @@ export function createCheckoutActions(page: Page) {
       }
     },
 
+    async validateTotaltePrice(expectedTotalPrice: string) {
+      await expect(payment.totalPrice).toBeVisible()
+      await expect(payment.totalPrice).toHaveText(expectedTotalPrice)
+    },
+
     async validateErrorMessage(message: string) {
       const errorElement = page.getByRole('paragraph').filter({ hasText: new RegExp(`^${message}$`) })
       await expect(errorElement).toBeVisible()
@@ -116,14 +123,13 @@ export function createCheckoutActions(page: Page) {
       await expect(alerts.terms).toContainText('Aceite os termos')
     },
 
-    async validateOrderSuccess(expectedTitle: string, customer: CustomerFormData) {
+    async validateOrder(expectedTitle: string, customer: CustomerFormData) {
       await expect(page).toHaveURL(/\/success/)
       await expect(success.statusHeading).toHaveText(expectedTitle)
       await expect(success.orderId).toHaveText(/^VLO-[A-Z0-9]+$/)
       await expect(page.getByText(`${customer.name} ${customer.surname}`)).toBeVisible()
       await expect(page.getByText(customer.email)).toBeVisible()
       await expect(page.getByText(customer.store)).toBeVisible()
-
     },
   }
 }

@@ -29,6 +29,7 @@ test.describe('Checkout', () => {
         phone: '11999999999',
         cpf: '12345678901',
         store: 'Velô Paulista',
+        paymentMethod: 'avista',
         terms: false,
       }
       // Act: Preencher apenas 1 caractere no Nome e no Sobrenome e submeter
@@ -49,6 +50,7 @@ test.describe('Checkout', () => {
         phone: '11999999999',
         cpf: '12345678901',
         store: 'Velô Paulista',
+        paymentMethod: 'avista',
         terms: false,
       }
       await app.checkout.fillCustomerData(customer)
@@ -66,6 +68,7 @@ test.describe('Checkout', () => {
         phone: '11999999999',
         cpf: '1234567',
         store: 'Velô Paulista',
+        paymentMethod: 'avista',
         terms: false,
       }
       // Act: Preencher CPF incompleto e submeter
@@ -85,6 +88,7 @@ test.describe('Checkout', () => {
         phone: '11999999999',
         cpf: '12345678901',
         store: 'Velô Paulista',
+        paymentMethod: 'avista',
         terms: false,
       }
 
@@ -112,6 +116,7 @@ test.describe('Checkout', () => {
         phone: '11999998888',
         cpf: '546.383.850-01',
         store: 'Velô Paulista',
+        paymentMethod: 'avista',
         terms: true,
       }
 
@@ -130,10 +135,106 @@ test.describe('Checkout', () => {
       // Act: Preencher dados e submeter o pedido à vista
       await app.checkout.fillCustomerData(customer)
       await app.checkout.selectPaymentMethod('avista')
+      await app.checkout.validateTotaltePrice('R$ 40.000,00')
       await app.checkout.submitOrder()
 
       // Assert: Validar pedido aprovado e exibido na confirmação
-      await app.checkout.validateOrderSuccess('Pedido Aprovado!', customer)
+      await app.checkout.validateOrder('Pedido Aprovado!', customer)
+    })
+
+    test('deve criar um pedido com status APROVADO quando o score de crédito for acima de 700', async ({ app, page }) => {
+      // Massa de Testes
+      const customer: CustomerFormData = {
+        name: 'Steve',
+        surname: 'Jobs',
+        email: 'steve.jobs@velomotors.com',
+        phone: '11999998888',
+        cpf: '643.657.220-18',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+      }
+
+      // Arrange: Limpeza prévia buscando o order_number existente no banco pelo CPF
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      //Arrange: mock da requisição da função de crédito
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 710,
+          })
+        })
+      })
+
+      // Arrange: Fluxo de ponta a ponta iniciando na página principal
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preencher dados e submeter o pedido financiado
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Validar pedido aprovado e exibido na confirmação
+      await app.checkout.validateOrder('Pedido Aprovado!', customer)
+    })
+
+    test('deve criar um pedido com status EM ANÁLISE quando o score de crédito for moderado (501 a 700)', async ({ app, page }) => {
+      // Arrange: Massa de Testes (Score moderado: 600)
+      const customer: CustomerFormData = {
+        name: 'Ada',
+        surname: 'Lovelace',
+        email: 'ada.lovelace@velomotors.com',
+        phone: '11999998888',
+        cpf: '743.657.220-19',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+      }
+
+      // Arrange: Limpeza prévia no banco de dados para isolamento do teste
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      // Arrange: Mock da API de análise de crédito retornando Score 600 (Moderado)
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 600,
+          }),
+        })
+      })
+
+      // Act: Navegação inicial e configuração do veículo
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preenchimento do checkout e submissão
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Redirecionamento e captura do número do pedido
+      await app.checkout.validateOrder('Pedido em Análise', customer)
+
     })
   })
 })
