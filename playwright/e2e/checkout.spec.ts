@@ -1,6 +1,7 @@
 import { expect, test } from '../support/fixtures'
 import { CustomerFormData } from '../support/actions/checkoutActions'
 import { getOrderByCpf, deleteOrderByCode, closeDatabase } from '../support/database/orderSeeder'
+import { mockCreditAnalysis } from '../support/mocks/creditAnalysis'
 
 /// AAA - Arrange, Act, Assert
 
@@ -161,21 +162,11 @@ test.describe('Checkout', () => {
         await deleteOrderByCode(existing.order_number)
       }
 
-      //Arrange: mock da requisição da função de crédito
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 710,
-          })
-        })
-      })
+      // Arrange: mock da requisição da função de crédito
+      await mockCreditAnalysis(page, 710)
 
       // Arrange: Fluxo de ponta a ponta iniciando na página principal
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -209,20 +200,10 @@ test.describe('Checkout', () => {
       }
 
       // Arrange: Mock da API de análise de crédito retornando Score 600 (Moderado)
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 600,
-          }),
-        })
-      })
+      await mockCreditAnalysis(page, 600)
 
       // Act: Navegação inicial e configuração do veículo
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -256,20 +237,10 @@ test.describe('Checkout', () => {
       }
 
       // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 500,
-          }),
-        })
-      })
+      await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -304,20 +275,10 @@ test.describe('Checkout', () => {
       }
 
       // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 500,
-          }),
-        })
-      })
+      await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -354,20 +315,10 @@ test.describe('Checkout', () => {
       }
 
       // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 500,
-          }),
-        })
-      })
+      await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -403,21 +354,11 @@ test.describe('Checkout', () => {
         await deleteOrderByCode(existing.order_number)
       }
 
-      // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 450,
-          }),
-        })
-      })
+      // Arrange: Mock da API de análise de crédito retornando Score 450 (Baixo)
+      await mockCreditAnalysis(page, 450)
 
       // Act: Navegação inicial e configuração do veículo
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 

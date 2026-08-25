@@ -15,6 +15,12 @@ export function createConfiguratorActions(page: Page) {
       await expect(page.getByRole('heading', { name: 'Velô Sprint' })).toBeVisible()
     },
 
+    async openFromHome() {
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await expect(page.getByRole('heading', { name: 'Velô Sprint' })).toBeVisible()
+    },
+
     async selectColor(colorName: string) {
       const colorButton = page.getByRole('button', { name: colorName })
       await expect(colorButton).toBeVisible()
