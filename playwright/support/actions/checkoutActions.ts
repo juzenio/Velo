@@ -9,6 +9,7 @@ export type CustomerFormData = {
   store: string
   paymentMethod: 'avista' | 'financiamento'
   terms?: boolean
+  downPayment?: string
 }
 
 export function createCheckoutActions(page: Page) {
@@ -101,6 +102,11 @@ export function createCheckoutActions(page: Page) {
       if (data.terms !== undefined) {
         await this.toggleTerms(data.terms)
       }
+    },
+
+    async fillDownPayment(amount: string) {
+      await payment.entryValueInput.clear()
+      await payment.entryValueInput.fill(amount)
     },
 
     async validateTotaltePrice(expectedTotalPrice: string) {

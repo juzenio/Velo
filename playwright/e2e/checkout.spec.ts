@@ -236,5 +236,203 @@ test.describe('Checkout', () => {
       await app.checkout.validateOrder('Pedido em Análise', customer)
 
     })
+    test('deve reprovar financiamento com score baixo e sem entrada', async ({ app, page }) => {
+      // Arrange: Massa de Testes (Score baixo: 500 / Sem entrada)
+      const customer: CustomerFormData = {
+        name: 'Ada',
+        surname: 'Lovelace',
+        email: 'ada.lovelace@velomotors.com',
+        phone: '11999998888',
+        cpf: '529.982.247-25',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+      }
+
+      // Arrange: Limpeza prévia no banco de dados para isolamento do teste
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 500,
+          }),
+        })
+      })
+
+      // Act: Navegação inicial e configuração do veículo
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preenchimento do checkout e submissão sem entrada
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Redirecionamento e validação da reprovação do pedido
+      await app.checkout.validateOrder('Crédito Reprovado', customer)
+    })
+
+    test('deve reprovar financiamento com score baixo e entrada inferior a 50%', async ({ app, page }) => {
+      // Arrange: Massa de Testes (Score baixo: 500 / Entrada inferior a 50%)
+      const customer: CustomerFormData = {
+        name: 'Grace',
+        surname: 'Hopper',
+        email: 'grace.hopper@velomotors.com',
+        phone: '11999997777',
+        cpf: '111.444.777-35',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+        downPayment: '10000'
+      }
+
+      // Arrange: Limpeza prévia no banco de dados para isolamento do teste
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 500,
+          }),
+        })
+      })
+
+      // Act: Navegação inicial e configuração do veículo
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preenchimento do checkout e configuração da entrada inferior a 50%
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.fillDownPayment(customer.downPayment!)
+      await app.checkout.validateTotaltePrice('R$ 30.600,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Redirecionamento e validação da reprovação do pedido
+      await app.checkout.validateOrder('Crédito Reprovado', customer)
+    })
+
+    test('deve aprovar financiamento com score baixo quando a entrada for igual a 50%', async ({ app, page }) => {
+      // Arrange: Massa de Testes (Score baixo: 500 / Entrada de 50%: R$ 20.000,00)
+      const customer: CustomerFormData = {
+        name: 'Grace',
+        surname: 'Hopper',
+        email: 'grace.hopper@velomotors.com',
+        phone: '11999997777',
+        cpf: '111.444.777-35',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+        downPayment: '20000',
+      }
+
+      // Arrange: Limpeza prévia no banco de dados para isolamento do teste
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 500,
+          }),
+        })
+      })
+
+      // Act: Navegação inicial e configuração do veículo
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preenchimento do checkout e configuração da entrada igual a 50%
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.fillDownPayment(customer.downPayment!)
+      await app.checkout.validateTotaltePrice('R$ 20.400,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Redirecionamento e validação da aprovação pela exceção da entrada igual a 50%
+      await app.checkout.validateOrder('Pedido Aprovado!', customer)
+    })
+
+    test('deve aprovar financiamento com score baixo quando a entrada for superior a 50%', async ({ app, page }) => {
+      // Arrange: Massa de Testes (Score baixo: 500 / Entrada superior a 50%: R$ 25.000,00)
+      const customer: CustomerFormData = {
+        name: 'Grace',
+        surname: 'Hopper',
+        email: 'grace.hopper@velomotors.com',
+        phone: '11999997777',
+        cpf: '111.444.777-35',
+        paymentMethod: 'financiamento',
+        store: 'Velô Paulista',
+        terms: true,
+        downPayment: '25000',
+      }
+
+      // Arrange: Limpeza prévia no banco de dados para isolamento do teste
+      const existing = await getOrderByCpf(customer.cpf)
+      if (existing) {
+        await deleteOrderByCode(existing.order_number)
+      }
+
+      // Arrange: Mock da API de análise de crédito retornando Score 500 (Baixo)
+      await page.route('**/functions/v1/credit-analysis', async route => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            status: 'Done',
+            score: 450,
+          }),
+        })
+      })
+
+      // Act: Navegação inicial e configuração do veículo
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Configure o Seu' }).click()
+      await app.configurator.validatePrice('R$ 40.000,00')
+      await app.configurator.proceedToCheckout()
+
+      // Act: Preenchimento do checkout e configuração da entrada superior a 50% (R$ 25.000,00)
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectPaymentMethod('financiamento')
+      await app.checkout.validateTotaltePrice('R$ 40.800,00')
+      await app.checkout.fillDownPayment(customer.downPayment!)
+      await app.checkout.validateTotaltePrice('R$ 15.300,00')
+      await app.checkout.submitOrder()
+
+      // Assert: Redirecionamento e validação da aprovação pela exceção da entrada > 50%
+      await app.checkout.validateOrder('Pedido Aprovado!', customer)
+    })
+
   })
 })
+
