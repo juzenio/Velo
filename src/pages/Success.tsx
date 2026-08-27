@@ -55,7 +55,7 @@ const statusConfig = {
     iconBg: 'bg-destructive/10',
     iconColor: 'text-destructive',
     titleColor: 'text-destructive',
-    title: 'Crédito Reprovado',
+    title: 'Pedido Reprovado!',
     description: 'Infelizmente seu crédito não foi aprovado. Tente novamente com pagamento à vista.',
   },
 };
@@ -78,7 +78,7 @@ const Success = () => {
       <Link to="/" className="mb-8">
         <img src={logo} alt="Velô" className="h-8" />
       </Link>
-      
+
       <div className="w-full max-w-2xl bg-card rounded-lg shadow-elegant-lg p-8 animate-scale-in">
         {/* Status Icon */}
         <div className="flex justify-center mb-6">

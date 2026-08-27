@@ -2,6 +2,7 @@ import { expect, test } from '../support/fixtures'
 import { CustomerFormData } from '../support/actions/checkoutActions'
 import { getOrderByCpf, deleteOrderByCode, closeDatabase } from '../support/database/orderSeeder'
 import { mockCreditAnalysis } from '../support/mocks/creditAnalysis'
+import { beforeEach } from 'node:test'
 
 /// AAA - Arrange, Act, Assert
 
@@ -104,9 +105,11 @@ test.describe('Checkout', () => {
 
   test.describe('Criação de Pedidos', () => {
 
-    test.afterAll(async () => {
-      await closeDatabase()
+    test.beforeEach(async ({ app }) => {
+      await app.hero.openFromHome()
     })
+
+
 
     test('deve criar um pedido com pagamento à vista com sucesso', async ({ app, page }) => {
       // Massa de Testes
@@ -128,8 +131,6 @@ test.describe('Checkout', () => {
       }
 
       // Arrange: Fluxo de ponta a ponta iniciando na página principal
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).click()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -166,7 +167,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 710)
 
       // Arrange: Fluxo de ponta a ponta iniciando na página principal
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -203,7 +203,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 600)
 
       // Act: Navegação inicial e configuração do veículo
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -240,7 +239,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -251,7 +249,7 @@ test.describe('Checkout', () => {
       await app.checkout.submitOrder()
 
       // Assert: Redirecionamento e validação da reprovação do pedido
-      await app.checkout.validateOrder('Crédito Reprovado', customer)
+      await app.checkout.validateOrder('Pedido Reprovado!', customer)
     })
 
     test('deve reprovar financiamento com score baixo e entrada inferior a 50%', async ({ app, page }) => {
@@ -278,7 +276,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -291,7 +288,7 @@ test.describe('Checkout', () => {
       await app.checkout.submitOrder()
 
       // Assert: Redirecionamento e validação da reprovação do pedido
-      await app.checkout.validateOrder('Crédito Reprovado', customer)
+      await app.checkout.validateOrder('Pedido Reprovado!', customer)
     })
 
     test('deve aprovar financiamento com score baixo quando a entrada for igual a 50%', async ({ app, page }) => {
@@ -318,7 +315,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 500)
 
       // Act: Navegação inicial e configuração do veículo
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 
@@ -358,7 +354,6 @@ test.describe('Checkout', () => {
       await mockCreditAnalysis(page, 450)
 
       // Act: Navegação inicial e configuração do veículo
-      await app.configurator.openFromHome()
       await app.configurator.validatePrice('R$ 40.000,00')
       await app.configurator.proceedToCheckout()
 

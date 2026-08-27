@@ -7,10 +7,6 @@ import orders from '../support/fixture/orders.json' with { type: 'json' }
 
 test.describe('Consulta de Pedido', () => {
 
-  test.afterAll(async () => {
-    // fecha a conexão com o banco
-    await closeDatabase()
-  })
 
   test.beforeEach(async ({ app }) => {
     // Arrange
