@@ -9,6 +9,8 @@ on:
 env:
   NODE_VERSION: '24'
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_PROJECT_ID: prj_UCqrix8se4m3Li9YT9LpKcWPG1z0
+  VERCEL_ORG_ID: org_0f7PTh9nS2z3v8rQ4e7m9f1c
   VERCEL_SCOPE: juzeniosantos01-6071
 
 
