@@ -77,5 +77,5 @@ jobs:
 
       # Vercel Deploy preview
       - name: Vercel Deploy preview
-        run: yarn vecel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }}
+        run: yarn vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }}
       
