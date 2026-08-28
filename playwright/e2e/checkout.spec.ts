@@ -255,7 +255,7 @@ test.describe('Checkout', () => {
     test('deve reprovar financiamento com score baixo e entrada inferior a 50%', async ({ app, page }) => {
       // Arrange: Massa de Testes (Score baixo: 500 / Entrada inferior a 50%)
       const customer: CustomerFormData = {
-        name: 'Grace',
+        name: 'Grace2',
         surname: 'Hopper',
         email: 'grace.hopper@velomotors.com',
         phone: '11999997777',
@@ -294,7 +294,7 @@ test.describe('Checkout', () => {
     test('deve aprovar financiamento com score baixo quando a entrada for igual a 50%', async ({ app, page }) => {
       // Arrange: Massa de Testes (Score baixo: 500 / Entrada de 50%: R$ 20.000,00)
       const customer: CustomerFormData = {
-        name: 'Grace',
+        name: 'Grace3',
         surname: 'Hopper',
         email: 'grace.hopper@velomotors.com',
         phone: '11999997777',
@@ -333,7 +333,7 @@ test.describe('Checkout', () => {
     test('deve aprovar financiamento com score baixo quando a entrada for superior a 50%', async ({ app, page }) => {
       // Arrange: Massa de Testes (Score baixo: 500 / Entrada superior a 50%: R$ 25.000,00)
       const customer: CustomerFormData = {
-        name: 'Grace',
+        name: 'Grace1',
         surname: 'Hopper',
         email: 'grace.hopper@velomotors.com',
         phone: '11999997777',
