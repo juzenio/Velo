@@ -17,7 +17,7 @@ jobs:
     steps:
       # Faz o checkout do código-fonte do repositório.
       - name: Checkout
-        uses: actions/cache@v6.1.0
+        uses: actions/checkout@v6.1.0
 
       # Configura a versão do Node.js definida nas variáveis globais.
       - name: Setup Node
