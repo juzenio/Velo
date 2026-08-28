@@ -67,6 +67,10 @@ jobs:
       - name: Install Dependencies
         run: yarn install --immutable
 
+       # obter as configurações do vercel
+      - name: pull Vercel Config
+        run: yarn dlx vercel pull --yes --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+
       # Vercel Build
       - name: Vercel Build
         run: yarn dlx vercel build --token=${{ env.VERCEL_TOKEN }}
