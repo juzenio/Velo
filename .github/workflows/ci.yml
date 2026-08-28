@@ -10,7 +10,7 @@ env:
   NODE_VERSION: '24'
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_PROJECT_ID: prj_UCqrix8se4m3Li9YT9LpKcWPG1z0
-  VERCEL_ORG_ID: org_0f7PTh9nS2z3v8rQ4e7m9f1c
+  VERCEL_ORG_ID: team_37p9Q6Sw3tLqM2SZzhru8f38
   VERCEL_SCOPE: juzeniosantos01-6071
 
 
@@ -77,5 +77,5 @@ jobs:
 
       # Vercel Deploy preview
       - name: Vercel Deploy preview
-        run: yarn dlx vercel deploy --prevew target=prevew --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+        run: yarn dlx vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
       
