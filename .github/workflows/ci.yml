@@ -69,7 +69,7 @@ jobs:
 
        # obter as configurações do vercel
       - name: pull Vercel Config
-        run: yarn dlx vercel pull --yes --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+        run: yarn dlx vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
 
       # Vercel Build
       - name: Vercel Build
