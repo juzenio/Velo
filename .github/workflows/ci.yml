@@ -67,15 +67,19 @@ jobs:
       - name: Install Dependencies
         run: yarn install --immutable
 
-       # obter as configurações do vercel
-      - name: pull Vercel Config
-        run: yarn dlx vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+      # Instala a CLI da Vercel globalmente
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Obter as configurações da Vercel
+      - name: Pull Vercel Config
+        run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
 
       # Vercel Build
       - name: Vercel Build
-        run: yarn dlx vercel build --token=${{ env.VERCEL_TOKEN }}
+        run: vercel build --token=${{ env.VERCEL_TOKEN }}
 
       # Vercel Deploy preview
       - name: Vercel Deploy preview
-        run: yarn dlx vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+        run: vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }}
       
