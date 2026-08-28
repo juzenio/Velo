@@ -67,9 +67,9 @@ jobs:
 
       # Vercel Build
       - name: Vercel Build
-        run: yarn vercel build --token=${{ env.VERCEL_TOKEN }}
+        run: yarn dlx vercel build --token=${{ env.VERCEL_TOKEN }}
 
       # Vercel Deploy preview
       - name: Vercel Deploy preview
-        run: yarn vercel deploy --prevew target=prevew --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
+        run: yarn dlx vercel deploy --prevew target=prevew --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }}
       
