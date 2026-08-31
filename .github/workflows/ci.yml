@@ -121,7 +121,7 @@ jobs:
 
       # 6. Execução dos Testes de Regressão
       - name: Run E2E Regression Tests
-        run: yarn playwright test playwright/e2e/checkout.spec.ts -g "deve validar mensagens de erro de todos os campos obrigatórios ao submeter formulário em branco"
+        run: yarn playwright test
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
 
