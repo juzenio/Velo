@@ -115,7 +115,7 @@ jobs:
 
       # Executa exclusivamente os testes e2e.
       - name: Run E2E regression Tests
-        run: yarn playwright test playwright/e2e/pedidos.spec.ts -g "deve validar mensagens de erro de todos os campos obrigatórios ao submeter formulário em branco"
+        run: yarn playwright test playwright/e2e/checkout.spec.ts -g "deve validar mensagens de erro de todos os campos obrigatórios ao submeter formulário em branco"
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.preview-url }}
 
