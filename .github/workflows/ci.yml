@@ -1,5 +1,5 @@
-# Workflow de Continuous Integration focado exclusivamente na execução de testes unitários.
-name: Continuous Integration
+# Workflow de Integração Contínua focado na execução de testes e deploy na Vercel
+name: Continuous Deployment
 
 on:
   push:
@@ -13,42 +13,41 @@ env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_SCOPE: juzeniosantos01-6071
 
-
 jobs:
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
 
     steps:
-      # Faz o checkout do código-fonte do repositório.
-      - name: Checkout
-        uses: actions/checkout@v6.1.0
+      # 1. Faz checkout do código do repositório
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Configura a versão do Node.js definida nas variáveis globais.
-      - name: Setup Node
-        uses: actions/setup-node@v6.5.0
+      # 2. Configura o ambiente Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # Habilita o Corepack para disponibilizar o Yarn.
+      # 3. Habilita o Corepack para gerenciamento do Yarn
       - name: Enable Corepack
         run: corepack enable
 
-      # Instala as dependências utilizando o yarn.lock para garantir versões consistentes.
-      - name: Install Dependencies
-        run: yarn install --immutable
+      # 4. Instala as dependências do projeto
+      - name: Install dependencies
+        run: yarn install
 
-      # Executa exclusivamente os testes unitários.
-      - name: Run Unit Tests
+      # 5. Executa os testes unitários com Vitest
+      - name: Run unit tests
         run: yarn test
 
 
   build-and-deploy:
-    name: Build and Deploy Vercel Preview
+    name: Build & Deploy Vercel Preview
     needs: [unit-tests]
     runs-on: ubuntu-latest
     outputs:
-      preview-url: ${{ steps.deploy.outputs.preview-url }}
+      deployment-url: ${{ steps.deploy.outputs.deployment-url }}
 
     steps:
       # Faz o checkout do código-fonte do repositório.
@@ -61,32 +60,39 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # Habilita o Corepack para disponibilizar o Yarn.
+      # 3. Habilita o Corepack para gerenciamento do Yarn
       - name: Enable Corepack
         run: corepack enable
 
-      # Instala as dependências utilizando o yarn.lock para garantir versões consistentes.
-      - name: Install Dependencies
-        run: yarn install --immutable
+      # 4. Instala as dependências do projeto
+      - name: Install dependencies
+        run: yarn install
 
-      # Obter as configurações da Vercel
+      # 5. Obter as configurações do Vercel
       - name: Pull Vercel Config
-        run: yarn vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
+        run: |
+          yarn vercel pull --yes \
+          --environment=preview \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE
 
-      # Vercel Build
-      - name: Vercel Build
-        run: yarn vercel build --token=${{ env.VERCEL_TOKEN }}
+      # 6. Build para o Vercel
+      - name: Build Vercel
+        run: yarn vercel build --token=$VERCEL_TOKEN
 
-      # Vercel Deploy preview
-      - name: Vercel Deploy preview
+      # 7. Deploy preview no Vercel
+      - name: Deploy preview
         id: deploy
         run: |
-          URL="$(yarn --silent vercel deploy --prebuilt --token=${{ env.VERCEL_TOKEN }} --scope=${{ env.VERCEL_SCOPE }})"
-          echo "preview-url=$URL" >> $GITHUB_OUTPUT
+          URL=$(yarn --silent vercel deploy --prebuilt \
+          --target=preview \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_SCOPE)
+          echo "deployment-url=$URL" >> $GITHUB_OUTPUT
 
 
-  e2e-testes:
-    name: E2E Tests
+  e2e-tests:
+    name: Run E2E Tests
     needs: [build-and-deploy]
     runs-on: ubuntu-latest
 
@@ -101,32 +107,29 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # Habilita o Corepack para disponibilizar o Yarn.
+      # 3. Habilita o Corepack para gerenciamento do Yarn
       - name: Enable Corepack
         run: corepack enable
 
-      # Instala as dependências utilizando o yarn.lock para garantir versões consistentes.
-      - name: Install Dependencies
-        run: yarn install --immutable
+      # 4. Instala as dependências do projeto
+      - name: Install dependencies
+        run: yarn install
 
-      # Instalação do chromium
-      - name: Install Playwright Browsers
+      # 5. Instalação do Chromium
+      - name: Install Playwright Browser
         run: yarn playwright install --with-deps chromium
 
-      # Executa exclusivamente os testes e2e.
-      - name: Run E2E regression Tests
+      # 6. Execução dos Testes de Regressão
+      - name: Run E2E Regression Tests
         run: yarn playwright test playwright/e2e/checkout.spec.ts -g "deve validar mensagens de erro de todos os campos obrigatórios ao submeter formulário em branco"
         env:
-          BASE_URL: ${{ needs.build-and-deploy.outputs.preview-url }}
+          BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
 
-      # Relatório de testes automatizados
-      - name: E2E Tests Report
+      # 7. Relatório de Testes Automatizados
+      - name: Upload Playwright report
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report
           retention-days: 30
-
-
-      
