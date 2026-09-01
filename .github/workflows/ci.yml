@@ -127,13 +127,22 @@ jobs:
           TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
 
       # 7. Relatório de Testes Automatizados
-      - name: 7. Compilar os dados brutos no formato visual do Allure
-        uses: simple-elf/allure-report-action@v1.13 # 🚀 Atualizado de v1.11 para v1.13
+      - name: 📊 Generate Test Summary
+        uses: mikepenz/action-junit-report@v4
+        if: always() # Roda sempre, independente de erro ou sucesso
+        with:
+            report_paths: 'results.xml'    # O arquivo gerado pelo config do Playwright
+            detailed_summary: true         # Cria a tabela detalhada que você viu
+            include_passed: true           # Mostra os testes que passaram também
+            check_name: 'Relatório Técnico E2E' 
+
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          allure_results: allure-results
-          allure_history: allure-history
-          keep_reports: 20
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
 
   promote:
     name: Promote to Production
