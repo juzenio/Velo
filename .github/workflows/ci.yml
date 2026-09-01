@@ -127,20 +127,13 @@ jobs:
           TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
 
       # 7. Relatório de Testes Automatizados
-      - name:  Compilar o relatório do Allure
-        uses: simple-elf/allure-report-action@v1.11
+      - name: 7. Compilar os dados brutos no formato visual do Allure
+        uses: simple-elf/allure-report-action@v1.13 # 🚀 Atualizado de v1.11 para v1.13
         if: always()
         with:
           allure_results: allure-results
-          allure_report: allure-report
-
-      - name:  Salvar Allure como Artefato do GitHub
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: relatorio-allure
-          path: allure-report/ # Salva a pasta compilada pelo Allure
-          retention-days: 30
+          allure_history: allure-history
+          keep_reports: 20
 
   promote:
     name: Promote to Production
