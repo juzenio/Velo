@@ -52,11 +52,11 @@ jobs:
     steps:
       # Faz o checkout do código-fonte do repositório.
       - name: Checkout
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v4
 
       # Configura a versão do Node.js definida nas variáveis globais.
       - name: Setup Node
-        uses: actions/setup-node@v6.5.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -99,11 +99,11 @@ jobs:
     steps:
       # Faz o checkout do código-fonte do repositório.
       - name: Checkout
-        uses: actions/checkout@v6.1.0
+        uses: actions/checkout@v4
 
       # Configura a versão do Node.js definida nas variáveis globais.
       - name: Setup Node
-        uses: actions/setup-node@v6.5.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -124,6 +124,7 @@ jobs:
         run: yarn playwright test
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
+          TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
 
       # 7. Relatório de Testes Automatizados
       - name: Upload Playwright report
