@@ -125,6 +125,7 @@ jobs:
         env:
           BASE_URL: ${{ needs.build-and-deploy.outputs.deployment-url }}
           TESTDINO_TOKEN: ${{ secrets.TESTDINO_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       # 7. Relatório de Testes Automatizados
       - name: 📊 Generate Test Summary
